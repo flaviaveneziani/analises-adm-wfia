@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leads por fluxo · ADM</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1b33; --muted:#5d6b82; --soft:#8a96a8; --line:#e3e8ef; --row:#f4f7fb;
+    --blue:#1d4fc4; --blue2:#6aa9f2; --blue3:#c9def8; --tint:#e8f3fd; --tintline:#cfe3f7;
+    --c-disp:#1d4fc4; --c-pop:#6aa9f2; --c-rec:#0f1b33;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Montserrat',system-ui,sans-serif;color:var(--ink);background:#fff;font-size:13px;line-height:1.5}
+  .wrap{max-width:1040px;margin:0 auto;padding:36px 28px 60px}
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  h1{font-family:'Anton',Impact,sans-serif;font-weight:400;font-size:44px;line-height:1.05;letter-spacing:.01em;margin:6px 0 10px;text-transform:uppercase}
+  .lead{color:var(--muted);font-size:13px;max-width:640px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0 18px}
+  .kpi{border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .kpi.tint{background:var(--tint);border-color:var(--tintline)}
+  .kpi .lab{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .kpi .val{font-family:'Anton',Impact,sans-serif;font-size:32px;line-height:1.15;margin:6px 0 4px}
+  .kpi.tint .val{color:var(--blue)}
+  .kpi .sub{font-size:11.5px;color:var(--muted)}
+  .card{border:1px solid var(--line);border-radius:12px;padding:20px 20px 16px;margin-bottom:18px}
+  .card h2{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);opacity:.8}
+  .card .desc{font-size:11.5px;color:var(--muted);margin:3px 0 14px}
+  table{width:100%;border-collapse:collapse}
+  th{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 8px;border-bottom:1px solid var(--line)}
+  td{padding:11px 8px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle}
+  tbody tr:nth-child(odd) td{background:var(--row)}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  td.b{font-weight:600}
+  tr.total td{font-weight:700;background:#fff !important;border-bottom:none}
+  .bar{height:7px;border-radius:4px;background:#edf1f6;position:relative;min-width:120px}
+  .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--blue)}
+  .bar.light i{background:var(--blue2)}
+  .barcell{display:flex;align-items:center;gap:10px}
+  .barcell b{min-width:46px;text-align:right;font-size:12.5px}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px;vertical-align:middle}
+  .pill{display:inline-block;font-size:10px;font-weight:600;color:var(--blue);background:var(--tint);border-radius:5px;padding:2px 7px;margin-left:6px}
+  .stack{display:flex;height:9px;border-radius:5px;overflow:hidden;min-width:180px;background:#edf1f6}
+  .stack span{display:block;height:100%}
+  .legend{display:flex;gap:18px;font-size:11.5px;color:var(--muted);margin-bottom:10px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .two .card{margin-bottom:18px}
+  .peak{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line)}
+  .peak:last-child{border-bottom:none}
+  .peak .t{font-weight:600;font-size:13px}
+  .peak .s{font-size:11px;color:var(--muted)}
+  .peak .v{font-family:'Anton',Impact,sans-serif;font-size:20px;text-align:right}
+  .peak .v small{display:block;font-family:'Montserrat',sans-serif;font-size:10.5px;color:var(--muted)}
+  .wd{display:grid;grid-template-columns:52px 1fr 40px;align-items:center;gap:10px;padding:5px 0;font-size:12px}
+  .wd .n{font-weight:600}
+  .wd .x{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+  .wdgroup + .wdgroup{margin-top:14px}
+  .wdgroup h3{font-size:11.5px;font-weight:700;margin-bottom:4px}
+  .insights{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .ins{background:var(--row);border-radius:10px;padding:16px}
+  .ins .no{font-family:'Anton',Impact,sans-serif;font-size:26px;color:var(--blue);line-height:1}
+  .ins .tt{font-weight:700;font-size:13px;margin:8px 0 6px;line-height:1.3}
+  .ins p{font-size:11.5px;color:var(--muted)}
+  #chart{width:100%;height:260px;display:block}
+  .tip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;font-size:11px;padding:7px 9px;border-radius:7px;opacity:0;transition:opacity .1s;line-height:1.5;z-index:9}
+  .foot{font-size:11px;color:var(--soft);margin-top:4px}
+
+  .toggle{display:inline-flex;border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px;margin:2px 0 16px}
+  .toggle button{font:600 11.5px 'Montserrat',sans-serif;border:0;background:transparent;color:var(--muted);padding:7px 12px;border-radius:7px;cursor:pointer}
+  .toggle button.on{background:var(--tint);color:var(--blue)}
+  .phases{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+  .ph{background:var(--row);border-radius:10px;padding:14px 16px}
+  .ph .no{font-family:'Anton',Impact,sans-serif;font-size:13px;color:var(--blue);letter-spacing:.04em}
+  .ph .tt{font-weight:700;font-size:12.5px;margin:4px 0 2px}
+  .ph .dt{font-size:11px;color:var(--muted)}
+  .ph .v{font-family:'Anton',Impact,sans-serif;font-size:24px;margin-top:6px}
+  .ph .v small{font-family:'Montserrat',sans-serif;font-size:11px;color:var(--muted);margin-left:4px}
+  .ph p{font-size:11px;color:var(--muted);margin-top:4px}
+  #chart2{width:100%;height:240px;display:block;margin-bottom:14px}
+  td.wknd{color:var(--soft)}
+  tr.phase-row td{background:#fff !important;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);padding-top:16px}
+  .prog{height:5px;border-radius:3px;background:#edf1f6;position:relative;width:70px;display:inline-block;vertical-align:middle;margin-left:8px}
+  .prog i{position:absolute;left:0;top:0;bottom:0;background:var(--blue2);border-radius:3px}
+  @media(max-width:820px){.phases{grid-template-columns:1fr 1fr}}
+  @media(max-width:820px){.kpis,.insights{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}h1{font-size:34px}}
+  @media print{.wrap{padding:16px}.card,.kpi,.ins{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Leads por fluxo · ADM como base para o carrinho WFIA</div>
+  <h1>Disparo · Pop-up · Receptivo</h1>
+  <p class="lead" style="margin-bottom:22px">Como cada fluxo de atendimento gerou leads entre 27/10 e 05/12/2025, dia a dia e semana a semana, para servir de base nos próximos lançamentos.</p>
+
+  <div class="card">
+    <h2>Ranking · Volume por fluxo</h2>
+    <div class="desc">Ordenado pelo total de leads. "% da base" = leads do fluxo ÷ 47.104 leads da ADM. "Dias ativos" = dias com pelo menos 1 lead no fluxo.</div>
+    <table>
+      <thead><tr>
+        <th>#</th><th>Fluxo</th><th>Participação</th><th class="num">Leads</th><th class="num">% da base</th><th class="num">Dias ativos</th><th class="num">Média / dia ativo</th><th class="num">Pico do dia</th><th class="num">Top 5 dias</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="b"><span class="dot" style="background:var(--c-disp)"></span>Disparo</td>
+          <td><div class="barcell"><div class="bar"><i style="width:100%"></i></div><b>44,9%</b></div></td>
+          <td class="num">7.414</td><td class="num b">15,74%</td><td class="num">15 / 40</td><td class="num">494</td><td class="num">1.864 <span class="foot">(03/11)</span></td><td class="num">90,1% <span class="pill">concentrado</span></td></tr>
+        <tr><td>2</td><td class="b"><span class="dot" style="background:var(--c-rec)"></span>Receptivo</td>
+          <td><div class="barcell"><div class="bar"><i style="width:66%"></i></div><b>29,7%</b></div></td>
+          <td class="num">4.894</td><td class="num b">10,39%</td><td class="num">40 / 40</td><td class="num">122</td><td class="num">1.333 <span class="foot">(27/10)</span></td><td class="num">54,7%</td></tr>
+        <tr><td>3</td><td class="b"><span class="dot" style="background:var(--c-pop)"></span>Pop-up</td>
+          <td><div class="barcell"><div class="bar light"><i style="width:56.6%"></i></div><b>25,4%</b></div></td>
+          <td class="num">4.196</td><td class="num b">8,91%</td><td class="num">37 / 40</td><td class="num">113</td><td class="num">295 <span class="foot">(10/11)</span></td><td class="num">30,1% <span class="pill">constante</span></td></tr>
+        <tr class="total"><td></td><td>Total</td><td></td><td class="num">16.504</td><td class="num">35,04%</td><td class="num">40</td><td class="num">413</td><td class="num">2.043 <span class="foot">(03/11)</span></td><td class="num"></td></tr>
+      </tbody>
+    </table>
+    <p class="foot" style="margin-top:10px">"Top 5 dias" = quanto do volume do fluxo saiu dos seus 5 melhores dias. Quanto maior, mais dependente de picos.</p>
+  </div>
+
+
+  <div class="card">
+    <h2>Projeção · Novo carrinho</h2>
+    <div class="desc">Aplicando a % da base de cada fluxo na ADM sobre a base atual. Considera o mesmo ritmo e o mesmo mix da ADM.</div>
+    <div class="kpis" style="margin:4px 0 18px">
+      <div class="kpi"><div class="lab">Base ADM</div><div class="val">47.104</div><div class="sub">leads no lançamento ADM</div></div>
+      <div class="kpi"><div class="lab">Base atual</div><div class="val">67.549</div><div class="sub">+43,4% vs ADM</div></div>
+      <div class="kpi tint"><div class="lab">% da base atendida</div><div class="val">35,04%</div><div class="sub">somando os 3 fluxos na ADM</div></div>
+      <div class="kpi tint"><div class="lab">Leads projetados</div><div class="val">23.667</div><div class="sub">nos 3 fluxos do novo carrinho</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Fluxo</th><th class="num">Leads ADM</th><th class="num">% da base ADM</th><th>&nbsp;</th><th class="num">Projeção novo carrinho</th></tr></thead>
+      <tbody id="projflow"></tbody>
+    </table>
+  </div>
+
+
+  <div class="card">
+    <h2>Meta dia a dia · Carrinho WFIA</h2>
+    <div class="desc">Curva da ADM (27/10 às 12h até 28/11) adaptada para a janela do WFIA: 05/11 à noite até 30/11, ou seja, 26 dias em vez de 33. Meta: mesma % da base da ADM (35,04%), ou 23.667 leads.</div>
+    <div class="phases" id="phases"></div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--c-disp)"></span>Disparo</span>
+      <span><span class="dot" style="background:var(--c-pop)"></span>Pop-up</span>
+      <span><span class="dot" style="background:var(--c-rec)"></span>Receptivo</span>
+    </div>
+    <svg id="chart2" role="img" aria-label="Meta diária de leads por fluxo no carrinho WFIA"></svg>
+    <table>
+      <thead><tr><th>Data</th><th>Dia</th><th class="num">Disparo</th><th class="num">Pop-up</th><th class="num">Receptivo</th><th class="num">Meta do dia</th><th class="num">Acumulado</th><th class="num">% da meta</th></tr></thead>
+      <tbody id="daily"></tbody>
+    </table>
+    <p class="foot" style="margin-top:12px">Como foi adaptado: <b>abertura</b> leva a mesma fatia do 1º dia da ADM. Nas <b>ondas de disparo</b>, cada dia recebe o disparo do mesmo dia da semana na ADM (domingo sem disparo), e pop-up e receptivo mantêm a queda pós-abertura. No <b>meio do carrinho</b>, pop-up e receptivo seguem o peso de cada dia da semana na ADM. Na <b>reta final</b>, o volume é distribuído por igual, sem queda de fim de semana, porque é fechamento. Cada fluxo fecha no total da projeção. Os leads da ADM depois de 28/11 (463) ficaram fora da curva.</p>
+  </div>
+
+  <div class="card">
+    <h2>Leads por dia</h2>
+    <div class="desc">Barras empilhadas por fluxo. Passe o mouse para ver os números do dia.</div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--c-disp)"></span>Disparo</span>
+      <span><span class="dot" style="background:var(--c-pop)"></span>Pop-up</span>
+      <span><span class="dot" style="background:var(--c-rec)"></span>Receptivo</span>
+    </div>
+    <svg id="chart" role="img" aria-label="Leads por dia empilhados por fluxo, de 27/10 a 05/12/2025"></svg>
+  </div>
+
+  <div class="card">
+    <h2>Evolução semanal · Mix de fluxos</h2>
+    <div class="desc">Semanas de segunda a domingo. A última semana tem só 5 dias (01 a 05/12).</div>
+    <table>
+      <thead><tr><th>Semana</th><th class="num">Disparo</th><th class="num">Pop-up</th><th class="num">Receptivo</th><th class="num">Total</th><th>Mix</th><th class="num">% do total</th></tr></thead>
+      <tbody id="weeks"></tbody>
+    </table>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Maiores dias de cada fluxo</h2>
+      <div class="desc">Os 3 dias de maior volume por fluxo.</div>
+      <div id="peaks"></div>
+    </div>
+    <div class="card">
+      <h2>Média por dia da semana</h2>
+      <div class="desc">Período estável de 06/11 a 28/11 (sem abertura e sem cauda). Disparo fica de fora por quase não operar nesse período.</div>
+      <div id="weekday"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const rows = [
+["2025-10-27",0,0,1333],["2025-10-28",108,0,393],["2025-10-29",586,14,409],["2025-10-30",1307,119,133],["2025-10-31",1357,93,102],
+["2025-11-01",511,34,65],["2025-11-02",0,13,62],["2025-11-03",1864,96,83],["2025-11-04",1564,58,81],["2025-11-05",40,65,81],
+["2025-11-06",0,104,353],["2025-11-07",0,68,187],["2025-11-08",0,39,61],["2025-11-09",0,53,54],["2025-11-10",0,295,166],
+["2025-11-11",0,285,158],["2025-11-12",10,222,126],["2025-11-13",7,138,82],["2025-11-14",7,142,48],["2025-11-15",0,122,12],
+["2025-11-16",0,117,23],["2025-11-17",0,268,99],["2025-11-18",2,194,141],["2025-11-19",16,195,126],["2025-11-20",0,113,44],
+["2025-11-21",0,100,48],["2025-11-22",0,77,20],["2025-11-23",0,84,71],["2025-11-24",0,144,59],["2025-11-25",10,181,74],
+["2025-11-26",0,135,47],["2025-11-27",0,127,53],["2025-11-28",25,96,42],["2025-11-29",0,2,2],["2025-11-30",0,0,3],
+["2025-12-01",0,6,11],["2025-12-02",0,99,9],["2025-12-03",0,79,7],["2025-12-04",0,65,5],["2025-12-05",0,154,21]
+];
+const NAMES=["Disparo","Pop-up","Receptivo"];
+const COLORS=["#1d4fc4","#6aa9f2","#0f1b33"];
+const DOW=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const fmt=n=>Math.round(n).toLocaleString('pt-BR');
+const pct=(n,d=1)=>n.toFixed(d).replace('.',',')+'%';
+const dd=s=>s.slice(8,10)+'/'+s.slice(5,7);
+const dow=s=>new Date(s+'T12:00:00').getDay();
+const TOTAL=rows.reduce((a,r)=>a+r[1]+r[2]+r[3],0);
+
+/* ---- daily chart ---- */
+(function(){
+  const svg=document.getElementById('chart'), tip=document.getElementById('tip');
+  const W=svg.clientWidth||980, H=260, m={l:40,r:6,t:8,b:30};
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const iw=W-m.l-m.r, ih=H-m.t-m.b, max=2100;
+  const bw=iw/rows.length, y=v=>m.t+ih-(v/max)*ih;
+  let g='';
+  [0,500,1000,1500,2000].forEach(t=>{
+    g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(t)}" y2="${y(t)}" stroke="#edf1f6"/>`;
+    g+=`<text x="${m.l-6}" y="${y(t)+3}" font-size="10" fill="#8a96a8" text-anchor="end">${fmt(t)}</text>`;
+  });
+  rows.forEach((r,i)=>{
+    const x=m.l+i*bw+bw*0.15, w=bw*0.7; let acc=0;
+    [1,2,3].forEach(k=>{ if(!r[k])return; const y0=y(acc), y1=y(acc+r[k]);
+      g+=`<rect x="${x}" y="${y1}" width="${w}" height="${y0-y1}" fill="${COLORS[k-1]}" />`; acc+=r[k]; });
+    g+=`<rect class="hit" data-i="${i}" x="${m.l+i*bw}" y="${m.t}" width="${bw}" height="${ih}" fill="transparent"/>`;
+    if(i%3===0) g+=`<text x="${m.l+i*bw+bw/2}" y="${H-12}" font-size="10" fill="#8a96a8" text-anchor="middle">${dd(r[0])}</text>`;
+  });
+  svg.innerHTML=g;
+  svg.querySelectorAll('.hit').forEach(el=>{
+    el.addEventListener('mousemove',e=>{
+      const r=rows[+el.dataset.i], t=r[1]+r[2]+r[3];
+      tip.innerHTML=`<b>${dd(r[0])} · ${DOW[dow(r[0])]}</b><br>Disparo: ${fmt(r[1])}<br>Pop-up: ${fmt(r[2])}<br>Receptivo: ${fmt(r[3])}<br><b>Total: ${fmt(t)}</b>`;
+      tip.style.opacity=1; tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY-10)+'px';
+      el.setAttribute('fill','rgba(15,27,51,.05)');
+    });
+    el.addEventListener('mouseleave',()=>{tip.style.opacity=0; el.setAttribute('fill','transparent');});
+  });
+})();
+
+
+/* ---- projeção ---- */
+(function(){
+  const BASE_ADM=47104, BASE_NOVA=67549, F=BASE_NOVA/BASE_ADM;
+  const tot=[1,2,3].map(k=>rows.reduce((a,r)=>a+r[k],0));
+  const order=[0,2,1];
+  const mx=Math.max(...tot);
+  let h=order.map(i=>`<tr><td class="b"><span class="dot" style="background:${COLORS[i]}"></span>${NAMES[i]}</td>
+    <td class="num">${fmt(tot[i])}</td><td class="num b">${pct(tot[i]/BASE_ADM*100,2)}</td>
+    <td><div class="bar ${i===1?'light':''}"><i style="width:${tot[i]/mx*100}%;${i===2?'background:#0f1b33':''}"></i></div></td>
+    <td class="num" style="font-weight:700;color:var(--blue)">${fmt(tot[i]*F)}</td></tr>`).join('');
+  const T=tot.reduce((a,b)=>a+b,0);
+  h+=`<tr class="total"><td>Total</td><td class="num">${fmt(T)}</td><td class="num">${pct(T/BASE_ADM*100,2)}</td><td></td><td class="num" style="color:var(--blue)">${fmt(T*F)}</td></tr>`;
+  document.getElementById('projflow').innerHTML=h;
+
+})();
+
+
+/* ---- meta diária WFIA ---- */
+(function(){
+  const PLAN={"dates": ["2025-11-05", "2025-11-06", "2025-11-07", "2025-11-08", "2025-11-09", "2025-11-10", "2025-11-11", "2025-11-12", "2025-11-13", "2025-11-14", "2025-11-15", "2025-11-16", "2025-11-17", "2025-11-18", "2025-11-19", "2025-11-20", "2025-11-21", "2025-11-22", "2025-11-23", "2025-11-24", "2025-11-25", "2025-11-26", "2025-11-27", "2025-11-28", "2025-11-29", "2025-11-30"], "base": [[0, 0, 1934], [1874, 6, 740], [1946, 124, 534], [733, 208, 210], [0, 78, 128], [2673, 83, 129], [2398, 153, 153], [898, 130, 151], [6, 244, 280], [6, 206, 171], [0, 161, 65], [0, 171, 104], [6, 477, 228], [6, 445, 262], [6, 372, 210], [6, 244, 280], [6, 205, 171], [0, 161, 65], [0, 171, 104], [6, 477, 227], [6, 445, 262], [6, 372, 210], [25, 271, 100], [25, 271, 100], [0, 271, 100], [0, 271, 100]]};
+  const PH=[{n:'01',t:'Abertura',dt:'05/11 (noite)',a:0,b:0,p:'Pico do receptivo na abertura.'},
+            {n:'02',t:'Ondas de disparo',dt:'06/11 a 12/11',a:1,b:7,p:'Concentra o volume de disparo.'},
+            {n:'03',t:'Meio do carrinho',dt:'13/11 a 26/11',a:8,b:21,p:'Pop-up vira a principal fonte.'},
+            {n:'04',t:'Reta final',dt:'27/11 a 30/11',a:22,b:25,p:'Fechamento, sem queda de fds.'}];
+  const svg=document.getElementById('chart2'), tip=document.getElementById('tip');
+  function render(k){
+    const P=PLAN[k], T=P.reduce((a,r)=>a+r[0]+r[1]+r[2],0);
+    document.getElementById('phases').innerHTML=PH.map(ph=>{
+      let v=0; for(let j=ph.a;j<=ph.b;j++) v+=P[j][0]+P[j][1]+P[j][2];
+      return `<div class="ph"><div class="no">${ph.n}</div><div class="tt">${ph.t}</div><div class="dt">${ph.dt}</div><div class="v">${fmt(v)}<small>${pct(v/T*100,0)}</small></div><p>${ph.p}</p></div>`;
+    }).join('');
+    let acc=0, h='', phi=0;
+    PLAN.dates.forEach((d,j)=>{
+      if(PH[phi] && PH[phi].a===j){ h+=`<tr class="phase-row"><td colspan="8">${PH[phi].n} · ${PH[phi].t}</td></tr>`; phi++; }
+      const r=P[j], t=r[0]+r[1]+r[2]; acc+=t; const wd=dow(d), we=(wd===0||wd===6);
+      h+=`<tr><td class="b">${dd(d)}</td><td class="${we?'wknd':''}">${DOW[wd]}</td><td class="num">${fmt(r[0])}</td><td class="num">${fmt(r[1])}</td><td class="num">${fmt(r[2])}</td><td class="num b" style="color:var(--blue)">${fmt(t)}</td><td class="num">${fmt(acc)}</td><td class="num">${pct(acc/T*100,0)}<span class="prog"><i style="width:${acc/T*100}%"></i></span></td></tr>`;
+    });
+    const ft=[0,1,2].map(i=>P.reduce((a,r)=>a+r[i],0));
+    h+=`<tr class="total"><td>Total</td><td></td>${ft.map(v=>`<td class="num">${fmt(v)}</td>`).join('')}<td class="num" style="color:var(--blue)">${fmt(T)}</td><td></td><td class="num">100%</td></tr>`;
+    document.getElementById('daily').innerHTML=h;
+    // chart
+    const W=svg.clientWidth||980,H=240,m={l:40,r:6,t:8,b:30}; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const iw=W-m.l-m.r, ih=H-m.t-m.b, mxv=Math.max(...P.map(r=>r[0]+r[1]+r[2]));
+    const step=mxv>2000?1000:500, max=Math.ceil(mxv/step)*step, bw=iw/P.length, y=v=>m.t+ih-(v/max)*ih;
+    let g='';
+    for(let t=0;t<=max;t+=step){g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(t)}" y2="${y(t)}" stroke="#edf1f6"/><text x="${m.l-6}" y="${y(t)+3}" font-size="10" fill="#8a96a8" text-anchor="end">${fmt(t)}</text>`;}
+    P.forEach((r,i)=>{
+      const x=m.l+i*bw+bw*0.15,w=bw*0.7; let a=0;
+      [0,1,2].forEach(c=>{ if(!r[c])return; const y0=y(a),y1=y(a+r[c]); g+=`<rect x="${x}" y="${y1}" width="${w}" height="${y0-y1}" fill="${COLORS[c]}"/>`; a+=r[c]; });
+      g+=`<rect class="hit" data-i="${i}" x="${m.l+i*bw}" y="${m.t}" width="${bw}" height="${ih}" fill="transparent"/>`;
+      if(i%2===0) g+=`<text x="${m.l+i*bw+bw/2}" y="${H-12}" font-size="10" fill="#8a96a8" text-anchor="middle">${dd(PLAN.dates[i])}</text>`;
+    });
+    svg.innerHTML=g;
+    svg.querySelectorAll('.hit').forEach(el=>{
+      el.addEventListener('mousemove',e=>{const i=+el.dataset.i,r=P[i],d=PLAN.dates[i];
+        tip.innerHTML=`<b>${dd(d)} · ${DOW[dow(d)]}</b><br>Disparo: ${fmt(r[0])}<br>Pop-up: ${fmt(r[1])}<br>Receptivo: ${fmt(r[2])}<br><b>Meta: ${fmt(r[0]+r[1]+r[2])}</b>`;
+        tip.style.opacity=1; tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY-10)+'px'; el.setAttribute('fill','rgba(15,27,51,.05)');});
+      el.addEventListener('mouseleave',()=>{tip.style.opacity=0; el.setAttribute('fill','transparent');});
+    });
+  }
+  render('base');
+})();
+
+/* ---- weekly ---- */
+(function(){
+  const weeks=[];
+  rows.forEach(r=>{
+    const d=new Date(r[0]+'T12:00:00'); const off=(d.getDay()+6)%7; const mon=new Date(d); mon.setDate(d.getDate()-off);
+    const key=mon.toISOString().slice(0,10);
+    let w=weeks.find(x=>x.k===key); if(!w){w={k:key,v:[0,0,0],last:r[0]};weeks.push(w);}
+    w.v[0]+=r[1]; w.v[1]+=r[2]; w.v[2]+=r[3]; w.last=r[0];
+  });
+  document.getElementById('weeks').innerHTML=weeks.map(w=>{
+    const t=w.v[0]+w.v[1]+w.v[2];
+    const mix=w.v.map((v,i)=>`<span title="${NAMES[i]}: ${pct(v/t*100)}" style="width:${v/t*100}%;background:${COLORS[i]}"></span>`).join('');
+    return `<tr><td class="b">${dd(w.k)} – ${dd(w.last)}</td><td class="num">${fmt(w.v[0])}</td><td class="num">${fmt(w.v[1])}</td><td class="num">${fmt(w.v[2])}</td><td class="num b">${fmt(t)}</td><td><div class="stack">${mix}</div></td><td class="num">${pct(t/TOTAL*100)}</td></tr>`;
+  }).join('') + `<tr class="total"><td>Total</td><td class="num">7.414</td><td class="num">4.196</td><td class="num">4.894</td><td class="num">16.504</td><td></td><td class="num">100%</td></tr>`;
+})();
+
+/* ---- peaks ---- */
+(function(){
+  let h='';
+  [1,2,3].forEach(k=>{
+    const tot=rows.reduce((a,r)=>a+r[k],0);
+    const top=[...rows].sort((a,b)=>b[k]-a[k]).slice(0,3);
+    h+=`<div class="peak"><div><div class="t"><span class="dot" style="background:${COLORS[k-1]}"></span>${NAMES[k-1]}</div>
+      <div class="s">${top.map(r=>`${dd(r[0])} (${DOW[dow(r[0])]}) · ${fmt(r[k])}`).join('&nbsp;&nbsp;·&nbsp;&nbsp;')}</div></div>
+      <div class="v">${pct(top.reduce((a,r)=>a+r[k],0)/tot*100,0)}<small>do fluxo em 3 dias</small></div></div>`;
+  });
+  document.getElementById('peaks').innerHTML=h;
+})();
+
+/* ---- weekday averages (06/11–28/11) ---- */
+(function(){
+  const order=[1,2,3,4,5,6,0];
+  const acc={}; order.forEach(d=>acc[d]={p:0,r:0,n:0});
+  rows.filter(r=>r[0]>='2025-11-06'&&r[0]<='2025-11-28').forEach(r=>{const d=dow(r[0]);acc[d].p+=r[2];acc[d].r+=r[3];acc[d].n++;});
+  const block=(key,name,cls)=>{
+    const vals=order.map(d=>acc[d][key]/acc[d].n), mx=Math.max(...vals);
+    return `<div class="wdgroup"><h3><span class="dot" style="background:${key==='p'?COLORS[1]:COLORS[2]}"></span>${name}</h3>`+
+      order.map((d,i)=>`<div class="wd"><span class="n">${DOW[d]}</span><div class="bar ${cls}"><i style="width:${vals[i]/mx*100}%;${key==='r'?'background:#0f1b33':''}"></i></div><span class="x">${fmt(vals[i])}</span></div>`).join('')+'</div>';
+  };
+  document.getElementById('weekday').innerHTML=block('p','Pop-up','light')+block('r','Receptivo','');
+})();
+</script>
+</body>
+</html>
